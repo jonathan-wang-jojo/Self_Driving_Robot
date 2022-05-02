@@ -91,8 +91,8 @@ def reader():
         return retur
 
 def livestream(frame):
-    decoded = np.frombuffer(frame, dtype=np.uint8)
-    decoded = decoded.reshape((480, 640, 3))
+    decoded = cv.imdecode(np.frombuffer(frame, dtype=np.uint8),-1)
+    #decoded = decoded.reshape((480, 640, 3))
     decoded= cv.cvtColor(decoded, cv.COLOR_RGB2BGR)
     process(decoded)
 
