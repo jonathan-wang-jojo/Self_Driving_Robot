@@ -91,7 +91,7 @@ def reader():
         return retur
 
 def livestream(frame):
-    image = np.array(bytearray(frame)).reshape(480,640)
+    image = np.array(bytearray(frame), dtype=np.uint8).reshape(480,640)
     process(image)
 
 def gen():
