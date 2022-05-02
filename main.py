@@ -92,8 +92,8 @@ def reader():
 
 def livestream(frame):
     array = np.asarray(bytearray(frame), dtype=np.uint8)
-    image = cv.imdecode(array, cv.IMREAD_COLOR)
-    process(image)
+    #image = cv.imdecode(array, cv.IMREAD_COLOR)
+    process(array)
 
 def gen():
     my_stream = BytesIO()
