@@ -127,7 +127,7 @@ def rest_rev():
     Robert.Reverse(distance)
     return "rev success"
 
-@app.route("/img")
+@app.route("/image")
 def image():
     return Response(gen(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
