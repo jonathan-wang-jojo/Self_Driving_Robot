@@ -92,7 +92,7 @@ def reader():
 
 def livestream(frame):
     decoded = np.frombuffer(frame, dtype=np.uint8)
-	  decoded = decoded.reshape((480, 640, 3))
+    decoded = decoded.reshape((480, 640, 3))
     decoded= cv.cvtColor(decoded, cv.COLOR_RGB2BGR)
     process(decoded)
 
