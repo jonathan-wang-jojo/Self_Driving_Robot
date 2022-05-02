@@ -92,6 +92,7 @@ def reader():
 
 def livestream(frame):
     image = np.array(bytearray(frame), dtype=np.uint8).reshape(480,640)
+    image = cv.imdecode(image, cv.IMREAD_COLOR)
     process(image)
 
 def gen():
