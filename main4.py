@@ -108,7 +108,7 @@ def gen():
             my_stream.seek(0)
             my_stream.flush()
             frame = my_stream.getvalue()
-            yield((frame, livestream(frame))
+            yield([frame, livestream(frame)])
 
 app = Flask('__name__')
 Robert = Robot()
