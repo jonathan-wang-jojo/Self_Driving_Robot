@@ -38,7 +38,7 @@ def process(img):
                 ending = y
                 break
         second_x = midpoints[-1][0]
-        slope = (midpoints[-1][1] - midpoints[-2][1])
+        slope = (midpoints[-2][0] - midpoints[-1][0])
 
         if (slope < 0):
             slice_width = (width - midpoints[-1][0]) // 16
