@@ -31,7 +31,7 @@ def process(img):
                     endx = width - x
                     check2 = True
                     break
-            if (check1 and check2 and abs(startx - endx) > 100):
+            if (check1 and check2 and abs(startx - endx) > 10):
                 mid = (startx + endx) // 2
                 midpoints.append((mid, y))
             else:
@@ -56,7 +56,7 @@ def process(img):
                         endy = height - y
                         check2 = True
                         break
-                if (check1 and check2 and abs(starty - endy) > 100):
+                if (check1 and check2 and abs(starty - endy) > 10):
                     mid = (starty + endy) // 2
                     midpoints.append((x, mid))
         else:
@@ -75,7 +75,7 @@ def process(img):
                         endy = height - y
                         check2 = True
                         break
-                if (check1 and check2 and abs(starty - endy) > 100):
+                if (check1 and check2 and abs(starty - endy) > 10):
                     mid = (starty + endy) // 2
                     midpoints.append((x, mid))
         for i in range(len(midpoints) - 1):
