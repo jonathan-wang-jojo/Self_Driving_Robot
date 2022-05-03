@@ -82,8 +82,8 @@ def process(img):
             cv.arrowedLine(img=img, pt1=midpoints[i], pt2=midpoints[i + 1], thickness=5, color=(0, 255, 0))
     except Exception:
         img = img
-    data= cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    return bytes(data)
+    data= cv.cvtColor(img, cv.COLOR_BGR2RGB)
+    return cv.imencode('.jpg', data)[1]
 
 def reader():
     retur = ""
@@ -94,7 +94,7 @@ def reader():
         return retur
 
 def livestream(frame):
-    decoded = cv2.imdecode(np.frombuffer(frame, dtype=np.uint8),cv.IMREAD_COLOR)
+    decoded = cv.imdecode(np.frombuffer(frame, dtype=np.uint8),cv.IMREAD_COLOR)
     decoded= cv.cvtColor(decoded, cv.COLOR_RGB2BGR)
     return process(decoded)
 
