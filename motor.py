@@ -29,7 +29,7 @@ class Motor:
 
   def Brake(self):
     self.__pins[0].stop()
-    self.__pins[0].stop()
+    self.__pins[1].stop()
     self.__Enable(False)
 
   def __del__(self):
