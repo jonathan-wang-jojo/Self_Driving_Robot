@@ -40,7 +40,8 @@ def process(img1):
                 break
         second_x = midpoints[-1][0]
         slope = (midpoints[-2][0] - midpoints[-1][0])
-
+        if(y < height/2):
+            Robert.Forward(0.1)
         if (slope < 0):
             slice_width = (width - midpoints[-1][0]) // 16
             for i in range(3, 16):
