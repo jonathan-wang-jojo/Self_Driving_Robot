@@ -7,90 +7,73 @@ from io import BytesIO
 import logging
 
 def process(img1):
-    img = img1.copy()
-    grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    dst = cv.Canny(grayed, 100, 200, None, 3)
-    blurred = cv.blur(dst, (20, 20))
-    height = img.shape[0] - 1
-    width = img.shape[1] - 1
-    slice_height = height // 10
-    midpoints = []
-    thresh = 10
-    im_bw = cv.threshold(blurred, thresh, 255, cv.THRESH_BINARY)[1]
-    try:
-        check = False
-        for j in range(9):
-            y = height - j * slice_height
-            check1 = False
-            check2 = False
-            for x in range(width):
-                if (im_bw[y, x] > 10):
-                    startx = x
-                    check1 = True
-                    break
-            for x in range(width):
-                if im_bw[y, width - x] > 10:
-                    endx = width - x
-                    check2 = True
-                    break
-            if (check1 and check2 and abs(startx - endx) > 10):
-                mid = (startx + endx) // 2
-                midpoints.append((mid, y))
-            else:
-                ending = y
+    moved = False
+    gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
+    edges = cv.Canny(gray, 100, 200, None, 3)
+    blur = cv.blur(edges, (20, 20))
+    thresh = 20
+    img = cv.threshold(blur, thresh, 255, cv.THRESH_BINARY)[1]
+    height = img.shape[0]-1
+    width = img.shape[1]-1
+    slice_height = height//10
+    slice_width = width//10
+    h_points = []
+    v_points = []
+    img2 = img1.copy()
+    for j in range(10):
+        bool1 = False
+        bool2 = False
+        y = height - slice_height*j
+        for x in range(width):
+            if img[y, x] == 255:
+                x1 = x
+                bool1 = True
                 break
-        second_x = midpoints[-1][0]
-        slope = (midpoints[-2][0] - midpoints[-1][0])
-        if(y < height/2):
-            Robert.Forward(0.1)
-            check = True
-        if (slope < 0):
-            slice_width = (width - midpoints[-1][0]) // 16
-            for i in range(3, 16):
-                x = second_x + slice_width * i
-                check1 = False
-                check2 = False
-                for y in range(height):
-                    if (im_bw[y, x] > 40):
-                        starty = y
-                        check1 = True
-                        break
-                for y in range(height):
-                    if (im_bw[height - y, x] > 40):
-                        endy = height - y
-                        check2 = True
-                        break
-                if (check1 and check2 and abs(starty - endy) > 10):
-                    mid = (starty + endy) // 2
-                    midpoints.append((x, mid))
-            if not check:
-                Robert.Turn(False, 0.2)
-        else:
-            slice_width = midpoints[-1][0] // 16
-            for i in range(3, 16):
-                x = second_x - slice_width * i
-                check1 = False
-                check2 = False
-                for y in range(height):
-                    if (im_bw[y, x] > 40):
-                        starty = y
-                        check1 = True
-                        break
-                for y in range(height):
-                    if (im_bw[height - y, x] > 40):
-                        endy = height - y
-                        check2 = True
-                        break
-                if (check1 and check2 and abs(starty - endy) > 10):
-                    mid = (starty + endy) // 2
-                    midpoints.append((x, mid))
-                if not check:
-                    Robert.Turn(False, 0.2)
-        for i in range(len(midpoints) - 1):
-            cv.arrowedLine(img=img, pt1=midpoints[i], pt2=midpoints[i + 1], thickness=5, color=(0, 255, 0))
+        for x in range(width):
+            if img[y, width - x] == 255:
+                x2 = width - x
+                bool2 = True
+                break
+        if (bool1 and bool2) and (abs(x2-x1) > 50):
+            mid = (x1 + x2)//2
+            h_points.append((mid, y))
+    for j in range(10):
+        bool1 = False
+        bool2 = False
+        x = slice_width*j
+        for y in range(height):
+            if img[y, x] == 255:
+                y1 = y
+                bool1 = True
+                break
+        for y in range(height):
+            if img[height - y, x] == 255:
+                y2 = height - y
+                bool2 = True
+                break
+        if (bool1 and bool2) and (abs(y2-y1) > 50):
+            mid = (y1 + y2)//2
+            v_points.append((x, mid))
+    
+    slope = (v_points[0][0]-h_points[0][0])
+
+    if slope > 0:
+        points = h_points + v_points
+    else:
+        v_points.reverse()
+        points = h_points + v_points
+
+    for i in range(len(points) - 1):
+        cv.arrowedLine(img = img2, pt1 = points[i], pt2 = points[i+1], thickness = 5, color = (0,255 ,0))
     except Exception:
         pass
-    return img
+    Robert.Forward(1.5*(height-h_points[-1][1]))
+    if slope > 0:
+        Robert.Turn(False, 1)
+    else:
+        Robert.Turn(True, 1)
+    #Robert.Forward(0.5)
+    return img2
 def reader():
     retur = ""
     with open("myapp.log", "r") as f:
