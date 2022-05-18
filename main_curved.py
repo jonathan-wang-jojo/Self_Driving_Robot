@@ -7,72 +7,77 @@ from io import BytesIO
 import logging
 
 def process(img1):
-    moved = False
-    gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
-    edges = cv.Canny(gray, 100, 200, None, 3)
-    blur = cv.blur(edges, (20, 20))
-    thresh = 20
-    img = cv.threshold(blur, thresh, 255, cv.THRESH_BINARY)[1]
-    height = img.shape[0]-1
-    width = img.shape[1]-1
-    slice_height = height//10
-    slice_width = width//10
-    h_points = []
-    v_points = []
-    img2 = img1.copy()
-    for j in range(10):
-        bool1 = False
-        bool2 = False
-        y = height - slice_height*j
-        for x in range(width):
-            if img[y, x] == 255:
-                x1 = x
-                bool1 = True
-                break
-        for x in range(width):
-            if img[y, width - x] == 255:
-                x2 = width - x
-                bool2 = True
-                break
-        if (bool1 and bool2) and (abs(x2-x1) > 50):
-            mid = (x1 + x2)//2
-            h_points.append((mid, y))
-    for j in range(10):
-        bool1 = False
-        bool2 = False
-        x = slice_width*j
-        for y in range(height):
-            if img[y, x] == 255:
-                y1 = y
-                bool1 = True
-                break
-        for y in range(height):
-            if img[height - y, x] == 255:
-                y2 = height - y
-                bool2 = True
-                break
-        if (bool1 and bool2) and (abs(y2-y1) > 50):
-            mid = (y1 + y2)//2
-            v_points.append((x, mid))
-    
-    slope = (v_points[0][0]-h_points[0][0])
+    try:
+        moved = False
+        gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
+        edges = cv.Canny(gray, 100, 200, None, 3)
+        blur = cv.blur(edges, (20, 20))
+        thresh = 20
+        img = cv.threshold(blur, thresh, 255, cv.THRESH_BINARY)[1]
+        height = img.shape[0]-1
+        width = img.shape[1]-1
+        slice_height = height//10
+        slice_width = width//10
+        h_points = []
+        v_points = []
+        img2 = img1.copy()
+        for j in range(10):
+            bool1 = False
+            bool2 = False
+            y = height - slice_height*j
+            for x in range(width):
+                if img[y, x] == 255:
+                    x1 = x
+                    bool1 = True
+                    break
+            for x in range(width):
+                if img[y, width - x] == 255:
+                    x2 = width - x
+                    bool2 = True
+                    break
+            if (bool1 and bool2) and (abs(x2-x1) > 50):
+                mid = (x1 + x2)//2
+                h_points.append((mid, y))
+        for j in range(10):
+            bool1 = False
+            bool2 = False
+            x = slice_width*j
+            for y in range(height):
+                if img[y, x] == 255:
+                    y1 = y
+                    bool1 = True
+                    break
+            for y in range(height):
+                if img[height - y, x] == 255:
+                    y2 = height - y
+                    bool2 = True
+                    break
+            if (bool1 and bool2) and (abs(y2-y1) > 50):
+                mid = (y1 + y2)//2
+                v_points.append((x, mid))
 
-    if slope > 0:
-        points = h_points + v_points
-    else:
-        v_points.reverse()
-        points = h_points + v_points
+        slope = (v_points[0][0]-h_points[0][0])
 
-    for i in range(len(points) - 1):
-        cv.arrowedLine(img = img2, pt1 = points[i], pt2 = points[i+1], thickness = 5, color = (0,255 ,0))
+        if slope > width/8:
+            points = h_points + v_points
+        else if slope < -width/8:
+            v_points.reverse()
+            points = h_points + v_points
+
+        for i in range(len(points) - 1):
+            cv.arrowedLine(img = img2, pt1 = points[i], pt2 = points[i+1], thickness = 5, color = (0,255 ,0))
+        
+        Robert.Forward(1.5*(height-h_points[-1][1])+1)
+        
+        if slope > width/8:
+            Robert.Forward(1)
+            Robert.Turn(False, 1)
+        else if slope < -width/8:
+            Robert.Forward(1)
+            Robert.Turn(True, 1)
     except Exception:
+        Robert.Forward(0.1)
         pass
-    Robert.Forward(1.5*(height-h_points[-1][1]))
-    if slope > 0:
-        Robert.Turn(False, 1)
-    else:
-        Robert.Turn(True, 1)
-    #Robert.Forward(0.4)
     return img2
 def reader():
     retur = ""
