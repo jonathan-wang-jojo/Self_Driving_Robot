@@ -8,7 +8,6 @@ import logging
 
 def process(img1):
     try:
-        moved = False
         gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
         edges = cv.Canny(gray, 100, 200, None, 3)
         blur = cv.blur(edges, (20, 20))
@@ -77,7 +76,6 @@ def process(img1):
             Robert.Turn(True, 1)
     except Exception:
         Robert.Forward(0.1)
-        pass
     return img2
 def reader():
     retur = ""
