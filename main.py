@@ -7,80 +7,90 @@ from io import BytesIO
 import logging
 
 def process(img1):
+    img = img1.copy()
+    #grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    #dst = cv.Canny(grayed, 100, 200, None, 3)
+    #blurred = cv.blur(dst, (20, 20))
+    height = img.shape[0] - 1
+    width = img.shape[1] - 1
+    slice_height = height // 20
+    midpoints = []
+    #return img
+    #thresh = 10
+    #im_bw = cv.threshold(blurred, thresh, 255, cv.THRESH_BINARY)[1]
     try:
-        gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
-        edges = cv.Canny(gray, 100, 200, None, 3)
-        blur = cv.blur(edges, (20, 20))
-        thresh = 20
-        img = cv.threshold(blur, thresh, 255, cv.THRESH_BINARY)[1]
-        height = img.shape[0]-1
-        width = img.shape[1]-1
-        slice_height = height//10
-        slice_width = width//10
-        h_points = []
-        v_points = []
-        img2 = img1.copy()
-        for j in range(10):
-            bool1 = False
-            bool2 = False
-            y = height - slice_height*j
+        for j in range(19):
+            y = height - j * slice_height
+            check1 = False
+            check2 = False
             for x in range(width):
-                if img[y, x] == 255:
-                    x1 = x
-                    bool1 = True
+                if (img[y, x][2] > 100 and img[y,x][1] < 150):
+                    startx = x
+                    check1 = True
                     break
             for x in range(width):
-                if img[y, width - x] == 255:
-                    x2 = width - x
-                    bool2 = True
+                if img[y, width - x][2] > 100 and img[y,x][1] < 150:
+                    endx = width - x
+                    check2 = True
                     break
-            if (bool1 and bool2) and (abs(x2-x1) > 50):
-                mid = (x1 + x2)//2
-                h_points.append((mid, y))
-        for j in range(10):
-            bool1 = False
-            bool2 = False
-            x = slice_width*j
-            for y in range(height):
-                if img[y, x] == 255:
-                    y1 = y
-                    bool1 = True
-                    break
-            for y in range(height):
-                if img[height - y, x] == 255:
-                    y2 = height - y
-                    bool2 = True
-                    break
-            if (bool1 and bool2) and (abs(y2-y1) > 50):
-                mid = (y1 + y2)//2
-                v_points.append((x, mid))
-
-        slope = (v_points[0][0]-h_points[0][0])
-
-        if slope > width/8:
-            points = h_points + v_points
-        else if slope < -width/8:
-            v_points.reverse()
-            points = h_points + v_points
-
-        for i in range(len(points) - 1):
-            cv.arrowedLine(img = img2, pt1 = points[i], pt2 = points[i+1], thickness = 5, color = (0,255 ,0))
-        
-        dh = h_points[0][1]-h_points[1][1]
-        dx = h_points[1][0]-h_points[0][0]
-        angle = np.arctan(dh/dx)
-        if angle > 0:
-            if (np.pi/2 - angle > np.pi/36):
-                #right turn
-                Robert.Turn(False, (np.pi/2-angle)*0.82/np.pi)
+            if (check1 and check2 and abs(startx - endx) > 10):
+                mid = (startx + endx) // 2
+                midpoints.append((mid, y))
+            else:
+                ending = y
+                break
+        second_x = midpoints[-1][0]
+        slope = (midpoints[-2][0] - midpoints[-1][0])
+        #if(y < height/2):
+            #Robert.Forward(0.1)
+        if (slope < 0):
+            #Robert.Turn(False, 0.2)
+            slice_width = (width - midpoints[-1][0]) // 16
+            for i in range(3, 16):
+                x = second_x + slice_width * i
+                check1 = False
+                check2 = False
+                for y in range(height):
+                    if (img[y, x][2] > 100 and img[y,x][1] < 150):
+                        starty = y
+                        check1 = True
+                        break
+                for y in range(height):
+                    if (img[height - y, x][2] > 100 and img[y,x][1] < 150):
+                        endy = height - y
+                        check2 = True
+                        break
+                if (check1 and check2 and abs(starty - endy) > 10):
+                    mid = (starty + endy) // 2
+                    midpoints.append((x, mid))
         else:
-            #left turn
-            if(np.pi/2 + angle > np.pi/36):
-                Robert.Turn(True, (np.pi/2 + angle)*1.63/np.pi)
-        Robert.Forward(0.1)
+            #Robert.Turn(True, 0.2)
+            slice_width = midpoints[-1][0] // 16
+            for i in range(3, 16):
+                x = second_x - slice_width * i
+                check1 = False
+                check2 = False
+                for y in range(height):
+                    if (img[y, x][2] > 100 and img[y,x][1] < 150):
+                        starty = y
+                        check1 = True
+                        break
+                for y in range(height):
+                    if (img[height - y, x][2] > 100 and img[y,x][1] < 150):
+                        endy = height - y
+                        check2 = True
+                        break
+                if (check1 and check2 and abs(starty - endy) > 10):
+                    mid = (starty + endy) // 2
+                    midpoints.append((x, mid))
+        for i in range(len(midpoints) - 1):
+            cv.arrowedLine(img=img, pt1=midpoints[i], pt2=midpoints[i + 1], thickness=5, color=(0, 255, 0))
     except Exception:
-        Robert.Forward(0.1)
-    return img2
+        pass
+    #data= cv.cvtColor(img, cv.COLOR_BGR2RGB)
+    #return cv.imencode('.jpg', data)[1]
+    return img
+    #return cv.merge([im_bw, im_bw, im_bw])
 def reader():
     retur = ""
     with open("myapp.log", "r") as f:
@@ -88,6 +98,11 @@ def reader():
         for i in range(len(listed) - 3, len(listed)):
             retur += listed[i] + "<br>"
         return retur
+
+def livestream(frame):
+    decoded = cv.imdecode(np.frombuffer(frame, dtype=np.uint8),cv.IMREAD_COLOR)
+    #decoded= cv.cvtColor(decoded, cv.COLOR_RGB2BGR)
+    return decoded
 
 def gen():
     my_stream = BytesIO()
@@ -128,6 +143,10 @@ def rest_rev():
 @app.route("/image")
 def image():
     return Response(gen(), mimetype="multipart/x-mixed-replace; boundary=frame")
+
+@app.route("/processed")
+#def processed():
+    #return Response(b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + list(gen())[1] + b'\r\n', mimetype="multipart/x-mixed-replace; boundary=frame")
 
 @app.route("/left", methods=["GET"])
 def rest_turn():
