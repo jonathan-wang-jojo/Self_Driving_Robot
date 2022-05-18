@@ -66,14 +66,14 @@ def process(img1):
         for i in range(len(points) - 1):
             cv.arrowedLine(img = img2, pt1 = points[i], pt2 = points[i+1], thickness = 5, color = (0,255 ,0))
         
-        Robert.Forward(1.5*(height-h_points[-1][1])+1)
+        Robert.Forward(1*(height-h_points[-1][1]))
         
         if slope > width/8:
             Robert.Forward(1)
-            Robert.Turn(False, 1)
+            Robert.Turn(False, 0.82)
         else if slope < -width/8:
             Robert.Forward(1)
-            Robert.Turn(True, 1)
+            Robert.Turn(True, 1.63)
     except Exception:
         Robert.Forward(0.1)
     return img2
