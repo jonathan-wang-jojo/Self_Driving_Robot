@@ -72,7 +72,7 @@ def process(img1):
         Robert.Turn(False, 1)
     else:
         Robert.Turn(True, 1)
-    #Robert.Forward(0.5)
+    #Robert.Forward(0.4)
     return img2
 def reader():
     retur = ""
