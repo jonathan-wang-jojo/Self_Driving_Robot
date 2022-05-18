@@ -7,12 +7,25 @@ from io import BytesIO
 import logging
 
 def process(img1):
-    for j in range(10):
-        bool1 = False
-        bool2 = False
-        y = height - slice_height*j
-        for x in range(width):
-              if img[y, x] == 255:
+    try:
+        gray = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
+        edges = cv.Canny(gray, 100, 200, None, 3)
+        blur = cv.blur(edges, (20, 20))
+        thresh = 20
+        img = cv.threshold(blur, thresh, 255, cv.THRESH_BINARY)[1]
+        height = img.shape[0]-1
+        width = img.shape[1]-1
+        slice_height = height//10
+        slice_width = width//10
+        h_points = []
+        v_points = []
+        img2 = img1.copy()
+        for j in range(10):
+            bool1 = False
+            bool2 = False
+            y = height - slice_height*j
+            for x in range(width):
+                if img[y, x] == 255:
                     x1 = x
                     bool1 = True
                     break
@@ -53,17 +66,20 @@ def process(img1):
         for i in range(len(points) - 1):
             cv.arrowedLine(img = img2, pt1 = points[i], pt2 = points[i+1], thickness = 5, color = (0,255 ,0))
         
-        Robert.Forward(1.5*(height-h_points[-1][1])+1)
-        
-        if slope > width/8:
-            Robert.Forward(1)
-            Robert.Turn(False, 1)
-        else if slope < -width/8:
-            Robert.Forward(1)
-            Robert.Turn(True, 1)
+        dh = h_points[0][1]-h_points[1][1]
+        dx = h_points[1][0]-h_points[0][0]
+        angle = np.arctan(dh/dx)
+        if angle > 0:
+            if (np.pi/2 - angle > np.pi/36):
+                #right turn
+                Robert.Turn(False, 2*(np.pi/2-angle)
+        else:
+            #left turn
+            if(np.pi/2 + angle > np.pi/36):
+                Robert.Turn(True, 2*(np.pi/2 + angle))
+        Robert.Forward(0.1)
     except Exception:
         Robert.Forward(0.1)
-        pass
     return img2
 def reader():
     retur = ""
@@ -112,10 +128,6 @@ def rest_rev():
 @app.route("/image")
 def image():
     return Response(gen(), mimetype="multipart/x-mixed-replace; boundary=frame")
-
-@app.route("/processed")
-#def processed():
-    #return Response(b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + list(gen())[1] + b'\r\n', mimetype="multipart/x-mixed-replace; boundary=frame")
 
 @app.route("/left", methods=["GET"])
 def rest_turn():
