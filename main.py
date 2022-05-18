@@ -72,11 +72,11 @@ def process(img1):
         if angle > 0:
             if (np.pi/2 - angle > np.pi/36):
                 #right turn
-                Robert.Turn(False, 2*(np.pi/2-angle)
+                Robert.Turn(False, (np.pi/2-angle)*0.82/np.pi)
         else:
             #left turn
             if(np.pi/2 + angle > np.pi/36):
-                Robert.Turn(True, 2*(np.pi/2 + angle))
+                Robert.Turn(True, (np.pi/2 + angle)*1.63/np.pi)
         Robert.Forward(0.1)
     except Exception:
         Robert.Forward(0.1)
