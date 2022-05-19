@@ -61,20 +61,34 @@ def process(img1):
         
         for i in range(len(points) - 1):
             cv.arrowedLine(img = img, pt1 = points[i], pt2 = points[i+1], thickness = 5, color = (0,255 ,0))
-        
-        dh = h_points[0][1] - h_points[1][1]
-        dx = h_points[1][0] - h_points[0][0]
-        angle = np.arctan(dh / dx)
-        if angle > 0:
-            if (np.pi/2 - angle > np.pi / 36):
-                # right turn
-                Robert.Turn(False, (np.pi/2 - angle)*0.82/ np.pi)
-        else:
-            # left turn
-            if (np.pi / 2 + angle > np.pi / 36):
-                Robert.Turn(True, (np.pi / 2 + angle) * 1.63 / np.pi)
-        Robert.Forward(0.1)
-
+        if len(h_points > 1):
+            dh = h_points[0][1] - h_points[1][1]
+            dx = h_points[1][0] - h_points[0][0]
+            angle = np.arctan(dh / dx)
+            if angle > 0:
+                if (np.pi/2 - angle > np.pi / 36):
+                    # right turn
+                    Robert.Turn(False, (np.pi/2 - angle)*0.82/ np.pi)
+            else:
+                # left turn
+                if (angle + np.pi/2 > np.pi / 36):
+                    Robert.Turn(True, (np.pi / 2 + angle) * 1.63 / np.pi)
+            Robert.Forward(0.1)
+        elif len(v_points > 1):
+            dx = v_points[1][0] - v_points[0][0]
+            dh = v_points[1][0] - v_points[0][0]
+            if dx > 0:
+                angle = np.arctan(dh / dx)
+                if (np.pi/2 - angle > np.pi / 36):
+                    # right turn
+                    Robert.Turn(False, (np.pi/2 - angle)*0.82/ np.pi)
+                Robert.Forward(0.1)
+            else:
+                angle = np.arctan(dh / dx)
+                if (angle + np.pi/2 > np.pi / 36):
+                    #left turn
+                    Robert.Turn(True, (np.pi / 2 + angle) * 1.63 / np.pi)
+                Robert.Forward(0.1)
     except Exception:
         Robert.Forward(0.1)
     return img
