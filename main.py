@@ -10,6 +10,15 @@ import logging
 def process(img1):
     try:
         img = img1.copy()
+        grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        dst = cv.Canny(grayed, 100, 200, None, 3)
+        blurred = cv.blur(dst, (20, 20))
+        height = img.shape[0] - 1
+        width = img.shape[1] - 1
+        slice_height = height // 20
+        midpoints = []
+        thresh = 10
+        img_bw = cv.threshold(blurred, thresh, 255, cv.THRESH_BINARY)[1]
         height = img.shape[0] - 1
         width = img.shape[1] - 1
         slice_height = height // 10
@@ -21,12 +30,12 @@ def process(img1):
             bool2 = False
             y = height - slice_height * j
             for x in range(width):
-                if (img[y, x][2] > 100 and img[y,x][1] < 150):
+                if (img_bw[y, x] > 100):
                     x1 = x
                     bool1 = True
                     break
             for x in range(width):
-                if  img[y, width - x][2] > 100 and img[y,x][1] < 150:
+                if  img_bw[y, width - x] > 100):
                     x2 = width - x
                     bool2 = True
                     break
@@ -38,12 +47,12 @@ def process(img1):
             bool2 = False
             x = slice_width * j
             for y in range(height):
-                if (img[y, x][2] > 100 and img[y,x][1] < 150):
+                if (img_bw[y, x] > 100:
                     y1 = y
                     bool1 = True
                     break
             for y in range(height):
-                if img[height - y, x][2] > 100 and img[height - y,x][1] < 150:
+                if img_bw[height - y, x] > 100:
                     y2 = height - y
                     bool2 = True
                     break
@@ -61,6 +70,7 @@ def process(img1):
         
         for i in range(len(points) - 1):
             cv.arrowedLine(img = img, pt1 = points[i], pt2 = points[i+1], thickness = 5, color = (0,255 ,0))
+        Robert.Forward(0.5)
         if len(h_points > 1):
             dh = h_points[0][1] - h_points[1][1]
             dx = h_points[1][0] - h_points[0][0]
@@ -73,7 +83,6 @@ def process(img1):
                 # left turn
                 if (angle + np.pi/2 > np.pi / 36):
                     Robert.Turn(True, (np.pi / 2 + angle) * 0.85 / np.pi)
-            Robert.Forward(0.1)
         elif len(v_points > 1):
             dx = v_points[1][0] - v_points[0][0]
             dh = v_points[1][0] - v_points[0][0]
@@ -82,13 +91,11 @@ def process(img1):
                 if (np.pi/2 - angle > np.pi / 36):
                     # right turn
                     Robert.Turn(False, (np.pi/2 - angle)*0.85/ np.pi)
-                Robert.Forward(0.1)
             else:
                 angle = np.arctan(dh / dx)
                 if (angle + np.pi/2 > np.pi / 36):
                     #left turn
                     Robert.Turn(True, (np.pi / 2 + angle) * 0.85 / np.pi)
-                Robert.Forward(0.1)
     except Exception:
         Robert.Forward(0.1)
     return img
