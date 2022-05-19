@@ -53,9 +53,9 @@ def process(img1):
         
         slope = (v_points[0][0]-h_points[0][0])
 
-        if slope > width/8:
+        if slope > width/16:
             points = h_points + v_points
-        elif slope < -width/8:
+        elif slope < -width/16:
             v_points.reverse()
             points = h_points + v_points
         
