@@ -68,11 +68,11 @@ def process(img1):
             if angle > 0:
                 if (np.pi/2 - angle > np.pi / 36):
                     # right turn
-                    Robert.Turn(False, (np.pi/2 - angle)*0.82/ np.pi)
+                    Robert.Turn(False, (np.pi/2 - angle)*0.85/ np.pi)
             else:
                 # left turn
                 if (angle + np.pi/2 > np.pi / 36):
-                    Robert.Turn(True, (np.pi / 2 + angle) * 1.63 / np.pi)
+                    Robert.Turn(True, (np.pi / 2 + angle) * 0.85 / np.pi)
             Robert.Forward(0.1)
         elif len(v_points > 1):
             dx = v_points[1][0] - v_points[0][0]
@@ -81,13 +81,13 @@ def process(img1):
                 angle = np.arctan(dh / dx)
                 if (np.pi/2 - angle > np.pi / 36):
                     # right turn
-                    Robert.Turn(False, (np.pi/2 - angle)*0.82/ np.pi)
+                    Robert.Turn(False, (np.pi/2 - angle)*0.85/ np.pi)
                 Robert.Forward(0.1)
             else:
                 angle = np.arctan(dh / dx)
                 if (angle + np.pi/2 > np.pi / 36):
                     #left turn
-                    Robert.Turn(True, (np.pi / 2 + angle) * 1.63 / np.pi)
+                    Robert.Turn(True, (np.pi / 2 + angle) * 0.85 / np.pi)
                 Robert.Forward(0.1)
     except Exception:
         Robert.Forward(0.1)
