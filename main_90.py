@@ -21,12 +21,12 @@ def process(img1):
             bool2 = False
             y = height - slice_height * j
             for x in range(width):
-                if (img[y, x][2] > 100 and img[y,x][1] < 150):
+                if (img[y, x][2] > 100 and img[y,x][0] < 150):
                     x1 = x
                     bool1 = True
                     break
             for x in range(width):
-                if  img[y, width - x][2] > 100 and img[y,x][1] < 150:
+                if  img[y, width - x][2] > 100 and img[y,x][0] < 150:
                     x2 = width - x
                     bool2 = True
                     break
@@ -38,12 +38,12 @@ def process(img1):
             bool2 = False
             x = slice_width * j
             for y in range(height):
-                if (img[y, x][2] > 100 and img[y,x][1] < 150):
+                if (img[y, x][2] > 100 and img[y,x][0] < 150):
                     y1 = y
                     bool1 = True
                     break
             for y in range(height):
-                if img[height - y, x][2] > 100 and img[height - y,x][1] < 150:
+                if img[height - y, x][2] > 100 and img[height - y,x][0] < 150:
                     y2 = height - y
                     bool2 = True
                     break
@@ -64,14 +64,14 @@ def process(img1):
         for i in range(len(points) - 1):
             cv.arrowedLine(img=img, pt1=points[i], pt2=points[i + 1], thickness=5, color=(0, 255, 0))
 
-        Robert.Forward(1 * (height - h_points[-1][1]))
+        Robert.Forward((height - h_points[-1][1])*0.5/height)
 
         if slope > width / 8:
             Robert.Forward(1)
-            Robert.Turn(False, 0.82)
+            Robert.Turn(False, 0.85)
         elif slope < (-width / 8):
             Robert.Forward(1)
-            Robert.Turn(True, 1.63)
+            Robert.Turn(True, 0.85)
     except Exception:
         Robert.Forward(0.1)
     return img
