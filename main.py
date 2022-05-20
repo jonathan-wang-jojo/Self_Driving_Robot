@@ -6,7 +6,7 @@ from picamera import PiCamera
 from io import BytesIO
 import logging
 
-
+not_moved = False
 def process(img1):
     try:
         img = img1.copy()
@@ -35,7 +35,7 @@ def process(img1):
                     bool1 = True
                     break
             for x in range(width):
-                if  img_bw[y, width - x] > 100):
+                if  (img_bw[y, width - x] > 100):
                     x2 = width - x
                     bool2 = True
                     break
@@ -47,7 +47,7 @@ def process(img1):
             bool2 = False
             x = slice_width * j
             for y in range(height):
-                if (img_bw[y, x] > 100:
+                if (img_bw[y, x] > 100):
                     y1 = y
                     bool1 = True
                     break
@@ -97,7 +97,11 @@ def process(img1):
                     #left turn
                     Robert.Turn(True, (np.pi / 2 + angle) * 0.85 / np.pi)
     except Exception:
-        Robert.Forward(0.1)
+        if not_moved:
+            Robert.Forward(0.1)
+            not_moved = False
+        else:
+            not_moved = True
     return img
 
 
