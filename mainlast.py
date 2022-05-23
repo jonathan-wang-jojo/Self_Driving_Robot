@@ -6,7 +6,7 @@ from picamera import PiCamera
 from io import BytesIO
 import logging
 
-moves = [0, [0, 1.2], [0,1.2], [0,1.2], [0,1.2], [1, 0.84], [0,1.2], [0,1.2], [0,1.2], [0,1.2]]
+moves = [0, [0, 1.3], [0,1.3], [0,1.3], [0,1.3], [1, 0.84], [0,1.2], [0,1.2], [0,1.2], [0,1.2]]
 def process(img1, moves):
     try:
         img = img1.copy()
