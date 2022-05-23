@@ -6,11 +6,11 @@ from picamera import PiCamera
 from io import BytesIO
 import logging
 
-moves = [0, [0, 0.5], [0,0.5], [1, 0.85], [0,0.5], [0,0.5]]
+moves = [0, [0, 1.1], [0,1.1], [0,1.1], [0,1.1], [1, 0.85], [0,1.1], [0,1.1], [0,1.1], [0,1.1]]
 def process(img1, moves):
     try:
         img = img1.copy()
-        grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        '''grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         dst = cv.Canny(grayed, 100, 200, None, 3)
         blurred = cv.blur(dst, (20, 20))
         height = img.shape[0] - 1
@@ -18,7 +18,7 @@ def process(img1, moves):
         slice_height = height // 20
         midpoints = []
         thresh = 10
-        img_bw = cv.threshold(blurred, thresh, 255, cv.THRESH_BINARY)[1]
+        img_bw = cv.threshold(blurred, thresh, 255, cv.THRESH_BINARY)[1]'''
         height = img.shape[0] - 1
         width = img.shape[1] - 1
         slice_height = height // 10
@@ -30,16 +30,16 @@ def process(img1, moves):
             bool2 = False
             y = height - slice_height * j
             for x in range(width):
-                if (img_bw[y, x] > 100):
+                if ((img[y, x][2] > 100 and img[y,x][0] < 150)):
                     x1 = x
                     bool1 = True
                     break
             for x in range(width):
-                if  (img_bw[y, width - x] > 100):
+                if  ((img[y, width - x][2] > 100 and img[y,width -x][0] < 150)):
                     x2 = width - x
                     bool2 = True
                     break
-            if (bool1 and bool2) and (abs(x2 - x1) > 50):
+            if (bool1 and bool2):
                 mid = (x1 + x2) // 2
                 h_points.append((mid, y))
         for j in range(10):
@@ -47,24 +47,24 @@ def process(img1, moves):
             bool2 = False
             x = slice_width * j
             for y in range(height):
-                if (img_bw[y, x] > 100):
+                if ((img[y, x][2] > 100 and img[y,x][0] < 150)):
                     y1 = y
                     bool1 = True
                     break
             for y in range(height):
-                if img_bw[height - y, x] > 100:
+                if (img[height - y, x][2] > 100 and img[height - y,x][0] < 150):
                     y2 = height - y
                     bool2 = True
                     break
-            if (bool1 and bool2) and (abs(y2 - y1) > 50):
+            if (bool1 and bool2):
                 mid = (y1 + y2) // 2
                 v_points.append((x, mid))
         
         slope = (v_points[0][0]-h_points[0][0])
 
-        if slope > width/16:
+        if slope >0:
             points = h_points + v_points
-        elif slope < -width/16:
+        elif slope < 0:
             v_points.reverse()
             points = h_points + v_points
         else:
