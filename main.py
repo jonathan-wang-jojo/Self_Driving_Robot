@@ -6,11 +6,12 @@ from picamera import PiCamera
 from io import BytesIO
 import logging
 
-
+lower = np.array([50,50,100])
+upper = np.array([255,255,150])
 def process(img1):
     try:
         img = img1.copy()
-        grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        '''grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         dst = cv.Canny(grayed, 100, 200, None, 3)
         blurred = cv.blur(dst, (20, 20))
         height = img.shape[0] - 1
@@ -18,7 +19,7 @@ def process(img1):
         slice_height = height // 20
         midpoints = []
         thresh = 10
-        img_bw = cv.threshold(blurred, thresh, 255, cv.THRESH_BINARY)[1]
+        img_bw = cv.threshold(blurred, thresh, 255, cv.THRESH_BINARY)[1]'''
         height = img.shape[0] - 1
         width = img.shape[1] - 1
         slice_height = height // 10
@@ -30,16 +31,16 @@ def process(img1):
             bool2 = False
             y = height - slice_height * j
             for x in range(width):
-                if (img_bw[y, x] > 100):
+                if ((img[y, x] > lower).all() and (img[y,x] < upper).all()):
                     x1 = x
                     bool1 = True
                     break
             for x in range(width):
-                if  (img_bw[y, width - x] > 100):
+                if  ((img[y, width - x] > lower).all() and (img[y,width -x] < upper).all()):
                     x2 = width - x
                     bool2 = True
                     break
-            if (bool1 and bool2) and (abs(x2 - x1) > 50):
+            if (bool1 and bool2):
                 mid = (x1 + x2) // 2
                 h_points.append((mid, y))
         for j in range(10):
@@ -47,31 +48,31 @@ def process(img1):
             bool2 = False
             x = slice_width * j
             for y in range(height):
-                if (img_bw[y, x] > 100):
+                if ((img[y, x] > lower).all() and (img[y,x] < upper).all()):
                     y1 = y
                     bool1 = True
                     break
             for y in range(height):
-                if img_bw[height - y, x] > 100:
+                if ((img[height - y, x] > lower).all() and (img[height - y,x]< upper).all()):
                     y2 = height - y
                     bool2 = True
                     break
-            if (bool1 and bool2) and (abs(y2 - y1) > 50):
+            if (bool1 and bool2):
                 mid = (y1 + y2) // 2
                 v_points.append((x, mid))
         
         slope = (v_points[0][0]-h_points[0][0])
 
-        if slope > width/16:
+        if slope >0:
             points = h_points + v_points
-        elif slope < -width/16:
+        elif slope < 0:
             v_points.reverse()
             points = h_points + v_points
         else:
             points = h_points
         for i in range(len(points) - 1):
             cv.arrowedLine(img = img, pt1 = points[i], pt2 = points[i+1], thickness = 5, color = (0,255 ,0))
-        Robert.Forward(0.5)
+        Robert.Forward(0.55)
         if len(h_points > 1):
             dh = h_points[0][1] - h_points[1][1]
             dx = h_points[1][0] - h_points[0][0]
@@ -80,26 +81,18 @@ def process(img1):
                 if (np.pi/2 - angle > np.pi / 36 and np.pi/2 - angle < np.pi/6):
                     # right turn
                     Robert.Turn(False, (np.pi/2 - angle)*0.85/ np.pi)
-            else:
-                # left turn
-                if (angle +np.pi/2 > np.pi/3):
-                    Robert.Turn(True, 0.85)
-                elif (angle + np.pi/2 > np.pi / 36):
+                else:
                     Robert.Turn(True, (np.pi / 2 + angle) * 0.85 / np.pi)
         elif len(v_points > 1):
             dx = v_points[1][0] - v_points[0][0]
             dh = v_points[1][0] - v_points[0][0]
+            angle = np.arctan(dh / dx)
             if dx > 0:
-                angle = np.arctan(dh / dx)
-                if (np.pi/2 - angle > np.pi / 36 and np.pi/2 - angle < np.pi/6):
+                if (np.pi/2 - angle > 0 and np.pi/2 - angle < np.pi/12):
                     # right turn
                     Robert.Turn(False, (np.pi/2 - angle)*0.85/ np.pi)
             else:
-                angle = np.arctan(dh / dx)
-                if (angle + np.pi/2 > np.pi/3):
-                    Robert.Turn(True, 0.85)
-                elif (angle + np.pi/2 > np.pi / 36):
-                    #left turn
+                if (angle + np.pi/2 > 0):
                     Robert.Turn(True, (np.pi / 2 + angle) * 0.85 / np.pi)
     except Exception:
         Robert.Forward(0.1)
