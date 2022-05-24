@@ -6,7 +6,7 @@ from picamera import PiCamera
 from io import BytesIO
 import logging
 size = 0.6
-moves = [1] + [[0, size]] * 8 + [[1, 0.84]] +[[0, size]] * 8]
+moves = [1] + [[0, size]] * 8 + [[1, 0.84]] +[[0, size]] * 8
 def process(img1, moves):
     try:
         img = img1.copy()
@@ -88,8 +88,9 @@ def process(img1, moves):
                             Robert.Turn(True, (np.pi / 2 + angle) * 0.85 / np.pi)
                 Robert.Forward(moves[step][1])
             else:
-              Robert.Turn(True, moves[step][1])
-            moves[0] = moves[0] + 1
+                Robert.Turn(True, moves[step][1])
+            if (moves[0] < len(moves) - 1)
+                moves[0] = moves[0] + 1
     except Exception:
         pass
     return img
