@@ -5,11 +5,12 @@ from flask import Flask, request, render_template, Response, make_response
 from picamera import PiCamera
 from io import BytesIO
 import logging
-
-moves = [0, [0, 1.3], [0,1.3], [0,1.3], [0,1.3], [1, 0.84], [0,1.2], [0,1.2], [0,1.2], [0,1.2]]
+size = 0.6
+moves = [1] + [[0, size]] * 8 + [[1, 0.84]] +[[0, size]] * 8]
 def process(img1, moves):
     try:
         img = img1.copy()
+        correction = True
         '''grayed = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         dst = cv.Canny(grayed, 100, 200, None, 3)
         blurred = cv.blur(dst, (20, 20))
@@ -74,6 +75,17 @@ def process(img1, moves):
         if (len(points) > 1):
             step = moves[0]
             if moves[step][0] == 0:
+                if correction:
+                    dh = points[0][1] - points[1][1]
+                    dx = points[1][0] - points[0][0]
+                    angle = np.arctan(dh / dx)
+                    if angle > 0:
+                        if (np.pi/2 - angle < np.pi / 12):
+                            # right turn
+                            Robert.Turn(False, (np.pi/2 - angle)*0.85/ np.pi)
+                    else:
+                        if (angle + np.pi/2 < np.pi / 12):
+                            Robert.Turn(True, (np.pi / 2 + angle) * 0.85 / np.pi)
                 Robert.Forward(moves[step][1])
             else:
               Robert.Turn(True, moves[step][1])
